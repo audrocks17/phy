@@ -2,7 +2,7 @@
 
 import re
 from phy import IPlugin, connect
-from phy.cluster.views import FeatureView
+from phy.cluster.views import FeatureView2
 
 
 def my_grid():
@@ -20,6 +20,6 @@ class ExampleCustomFeatureViewPlugin(IPlugin):
     def attach_to_controller(self, controller):
         @connect
         def on_view_attached(view, gui):
-            if isinstance(view, FeatureView):
+            if isinstance(view, FeatureView2):
                 # We change the specification of the subplots here.
                 view.set_grid_dim(my_grid())
