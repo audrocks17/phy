@@ -27,7 +27,7 @@ from phy.cluster._utils import RotatingProperty
 from phy.cluster.supervisor import Supervisor
 from phy.cluster.views.base import ManualClusteringView, BaseColorView
 from phy.cluster.views import (
-    WaveformView, FeatureView, TraceView, TraceImageView, CorrelogramView, AmplitudeView,
+    WaveformView, FeatureView2, TraceView, TraceImageView, CorrelogramView, AmplitudeView,
     ScatterView, ProbeView, RasterView, TemplateView, ISIView, FiringRateView, ClusterScatterView,
     select_traces)
 from phy.cluster.views.trace import _iter_spike_waveforms
@@ -278,7 +278,7 @@ class FeatureMixin(object):
         'n_spikes_features', 'n_spikes_features_background',
     )
 
-    _new_views = ('FeatureView',)
+    _new_views = ('FeatureView2',)
 
     _amplitude_functions = (
         ('feature', 'get_spike_feature_amplitudes'),
@@ -370,7 +370,7 @@ class FeatureMixin(object):
     def create_feature_view(self):
         if self.model.features is None:
             return
-        view = FeatureView(
+        view = FeatureView2(
             features=self._get_features,
             attributes={'time': self._get_feature_view_spike_times}
         )
@@ -402,7 +402,7 @@ class FeatureMixin(object):
 
     def _set_view_creator(self):
         super(FeatureMixin, self)._set_view_creator()
-        self.view_creator['FeatureView'] = self.create_feature_view
+        self.view_creator['FeatureView2'] = self.create_feature_view
 
 
 class TemplateMixin(object):

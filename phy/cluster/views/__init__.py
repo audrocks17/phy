@@ -11,7 +11,7 @@ from .base import ManualClusteringView  # noqa
 from .cluscatter import ClusterScatterView  # noqa
 from .amplitude import AmplitudeView  # noqa
 from .correlogram import CorrelogramView  # noqa
-from .feature import FeatureView  # noqa
+from .feature2 import FeatureView2  # noqa
 from .histogram import HistogramView, ISIView, FiringRateView  # noqa
 from .probe import ProbeView  # noqa
 from .raster import RasterView  # noqa

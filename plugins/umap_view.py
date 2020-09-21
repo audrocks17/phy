@@ -1,13 +1,13 @@
-"""Show how to write a custom dimension reduction view."""
-
+import numpy as np
 from phy import IPlugin, Bunch
+#from phy.apps.base import get_best_channel as best 
 from phy.cluster.views import ScatterView
 
 
-def umap(x):
-    """Perform the dimension reduction of the array x."""
-    from umap import UMAP
-    return UMAP().fit_transform(x)
+#def umap(x):
+#    """Perform the dimension reduction of the array x."""
+#    from umap import UMAP
+#    return UMAP().fit_transform(x)
 
 
 class WaveformUMAPView(ScatterView):
@@ -15,31 +15,38 @@ class WaveformUMAPView(ScatterView):
     pass
 
 
-class ExampleWaveformUMAPPlugin(IPlugin):
+class umap_view(IPlugin):
     def attach_to_controller(self, controller):
         def coords(cluster_ids):
-            """Must return a Bunch object with pos, spike_ids, spike_clusters."""
-            # We select 200 spikes from the selected clusters.
-            # WARNING: lasso and split will work but will *only split the shown subselection* of
-            # spikes. You should use the `load_all` keyword argument to `coords()` to load all
-            # spikes before computing the spikes inside the lasso, however (1) this could be
-            # prohibitely long with UMAP, and (2) the coordinates will change when reperforming
-            # the dimension reduction on all spikes, so the splitting would be meaningless anyway.
-            # A warning is displayed when trying to split on a view that does not accept the
-            # `load_all` keyword argument, because it means that all relevant spikes (even not
-            # shown ones) are not going to be split.
-            spike_ids = controller.selector(200, cluster_ids)
-            # We get the cluster ids corresponding to the chosen spikes.
+            spike_ids = controller.selector.select_spikes(cluster_ids)
+	        # We get the cluster ids corresponding to the chosen spikes.
             spike_clusters = controller.supervisor.clustering.spike_clusters[spike_ids]
-            # We get the waveforms of the spikes, across all channels so that we use the
-            # same dimensions for every cluster.
-            data = controller.model.get_waveforms(spike_ids, None)
-            # We reshape the array as a 2D array so that we can pass it to the t-SNE algorithm.
-            (n_spikes, n_samples, n_channels) = data.shape
-            data = data.transpose((0, 2, 1))  # get an (n_spikes, n_channels, n_samples) array
-            data = data.reshape((n_spikes, n_samples * n_channels))
-            # We perform the dimension reduction.
-            pos = umap(data)
+            #ch0 = controller.get_best_channels(cluster_ids)
+            #ch1 = (ch0-1)
+            #ch1 = controller.get_best_channel(cluster_ids)
+            #ch2 = (cluster_site1 - 1)
+            #a = controller.get_best_channel(spike_ids)
+            #b = controller.get_best_channels(2)[1])
+
+            data1 = controller.get_spike_raw_amplitudes(spike_ids, channel_id=controller.get_best_channels(spike_clusters[0])[0])
+            data2 = controller.get_spike_raw_amplitudes(spike_ids, channel_id=controller.get_best_channels(spike_clusters[0])[1])
+            print(controller.get_best_channels(spike_clusters[0])[0], controller.get_best_channels(spike_clusters[0])[1])
+            #data1 = controller.get_spike_raw_amplitudes(spike_ids, channel_id=controller.get_best_channels)
+            #data2 = controller.get_spike_raw_amplitudes(spike_ids, channel_id=controller.get_best_channels)
+
+            #data2 = controller.get_spike_raw_amplitudes(spike_ids, channel_id=controller.get_best_channels(1)[0])
+            #data2 = controller.model.get_spike_raw_amplitudes(spike_ids)
+            #(n_spikes, n_samples, n_channels) = data1.shape
+            #(n_spikes, n_samples, n_channels) = data2.shape
+            #data1out = data1.transpose((0, 2, 1))  # get an (n_spikes, n_channels, n_samples) array
+            #data2out = data2.reshape((n_spikes, n_samples * n_channels))
+            #pos = np.array([[1,2],[2,3],[4,5]])
+            #pos = np.array([data1], [data2])
+            pos = np.ones((len(data1), 2))
+            pos[:,0] = data1
+            pos[:,1] = data2
+
+            #pos = (data1, data2)
             return Bunch(pos=pos, spike_ids=spike_ids, spike_clusters=spike_clusters)
 
         def create_view():
